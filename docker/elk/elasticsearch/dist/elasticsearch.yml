@@ -7,3 +7,17 @@ path:
 http.host: 0.0.0.0
 http.cors.enabled: true
 http.cors.allow-origin: "*"
+
+searchguard.ssl.transport.pemcert_filepath: /data/elk/certificates/elasticsearch.cert
+searchguard.ssl.transport.pemkey_filepath: /data/elk/certificates/elasticsearch.key
+searchguard.ssl.transport.pemkey_password: 
+searchguard.ssl.transport.pemtrustedcas_filepath: /data/elk/certificates/ca.crt
+searchguard.ssl.transport.enforce_hostname_verification: true
+searchguard.ssl.http.enabled: true
+searchguard.ssl.http.pemcert_filepath: /data/elk/certificates/elasticsearch.cert
+searchguard.ssl.http.pemkey_filepath: /data/elk/certificates/elasticsearch.key
+searchguard.ssl.http.pemkey_password: 
+searchguard.ssl.http.pemtrustedcas_filepath: /data/elk/certificates/ca.crt
+
+searchguard.authcz.admin_dn:
+  - CN=tsec

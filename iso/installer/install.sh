@@ -618,6 +618,70 @@ then
           -out "/data/nginx/cert/nginx.crt" \
           -days 3650 \
           -subj '/C=AU/ST=Some-State/O=Internet Widgits Pty Ltd'
+
+  fuBANNER "SearchGuard admin"
+  wget https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-6/6.6.1-24.1/search-guard-6-6.6.1-24.1-sgadmin-standalone.zip -O /opt/tpot/bin/sgadmin.zip && unzip -n sgadmin.zip && rm sgadmin.zip
+  wget https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-tlstool/1.6/search-guard-tlstool-1.6.zip -O /opt/tpot/bin/tlstool.zip && unzip -n tlstool.zip && rm tlstool.zip
+
+
+  echo "Generate certificates"
+  cat > /tmp/tlstoolconfig.yml <<- EOM
+defaults:
+      validityDays: 3650 
+      httpsEnabled: true
+      verifyHostnames: true
+      resolveHostnames: true
+ca:
+   root:
+      # The distinguished name of this CA. You must specify a distinguished name.   
+      dn: cn=lasticca
+      file: ca.pem 
+nodes:
+  - name: elasticsearch
+    dn: CN=$myHOST
+    dns: elasticsearch $myHOST
+clients:
+  - name: tsec
+    dn: CN=tsec
+    admin: true
+EOM
+  /opt/tpot/bin/sgadmin/sgtlstool.sh -c /tmp/tlstoolconfig.yml -ca -crt -t /data/elk/certificates/
+
+  echo "Generate passwords"
+  adminpassword = `tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+  logstashpassword = `tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+  kibanapassword = `tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+  kibanareadonlypassword= `tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+  readallpassword = `tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+  snapshotrestorepassword = `tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+
+
+  bcrypt_adminpassword = `python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${adminpassword}")'`
+  bcrypt_logstashpassword = `python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${logstashpassword}")'`
+  bcrypt_kibanapassword = `python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${kibanapassword}")'`
+  bcrypt_kibanareadonlypassword = `python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${kibanareadonlypassword}")'`
+  bcrypt_readallpassword = `python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${readallpassword}")'`
+  bcrypt_snapshotrestorepassword = `python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${snapshotrestorepassword}")'`
+
+  envsubst '${bcrypt_adminpassword},${bcrypt_logstashpassword},\
+${bcrypt_bcrypt_kibanapassword},${bcrypt_kibanareadonlypassword},\
+${bcrypt_readallpassword},${bcrypt_snapshotrestorepassword}' \
+            < /opt/tpot/iso/installer/sgconfig/sg_internal_users.yml.tpl > /opt/tpot/etc/sgconfig/sg_internal_users.yml
+
+
+  echo "adminpassword=${adminpassword}"                     > /opt/tpot/etc/elk_passwords.conf
+  echo "logstashpassword=${logstashpassword}"               >> /opt/tpot/etc/elk_passwords.conf
+  echo "kibanapassword=${kibanapassword}"                   >> /opt/tpot/etc/elk_passwords.conf
+  echo "kibanareadonlypassword=${kibanareadonlypassword}"   >> /opt/tpot/etc/elk_passwords.conf
+  echo "readallpassword=${readallpassword}"                 >> /opt/tpot/etc/elk_passwords.conf
+  echo "snapshotrestorepassword=${snapshotrestorepassword}" >> /opt/tpot/etc/elk_passwords.conf
+
+  echo "Load configuration"
+
+  ./sgadmin.sh -cd /opt/tpot/etc/sgconfig -icl -nhnv   \
+       -cacert /data/elk/certificates/ca.pem \
+       -cert /data/elk/certificates/tsec.pem \
+       -key /data/elk/certificates/tsec.key
 fi
 
 # Let's setup the ntp server
@@ -645,12 +709,12 @@ echo "$myNETWORK_WLANEXAMPLE" | tee -a /etc/network/interfaces
 fuBANNER "SSH roaming off"
 echo "UseRoaming no" | tee -a /etc/ssh/ssh_config
 
-# Installing elasticdump, yq
+# Installing elasticdump, yq, hashlib
 fuBANNER "Installing pkgs"
 npm install https://github.com/taskrabbit/elasticsearch-dump -g
 pip install --upgrade pip
 hash -r
-pip install elasticsearch-curator yq
+pip install elasticsearch-curator yq hashlib
 
 # Cloning T-Pot from GitHub
 fuBANNER "Cloning T-Pot"
@@ -746,7 +810,7 @@ mkdir -p /data/adbhoney/downloads /data/adbhoney/log \
          /data/cowrie/log/tty/ /data/cowrie/downloads/ /data/cowrie/keys/ /data/cowrie/misc/ \
          /data/dionaea/log /data/dionaea/bistreams /data/dionaea/binaries /data/dionaea/rtp /data/dionaea/roots/ftp /data/dionaea/roots/tftp /data/dionaea/roots/www /data/dionaea/roots/upnp \
          /data/elasticpot/log \
-         /data/elk/data /data/elk/log \
+         /data/elk/data /data/elk/log /data/elk/certificates \ 
          /data/glastopf/log /data/glastopf/db \
          /data/honeytrap/log/ /data/honeytrap/attacks/ /data/honeytrap/downloads/ \
          /data/glutton/log \

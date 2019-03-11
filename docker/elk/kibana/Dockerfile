@@ -1,5 +1,5 @@
-FROM docker.elastic.co/kibana/kibana-oss:6.5.4
-USER root 
+FROM docker.elastic.co/kibana/kibana-oss:6.6.1
+USER root
 RUN usermod -u 2000 kibana
 
 # Include dist
@@ -14,7 +14,6 @@ RUN     cd /tmp/dist/ && \
     cp elk.ico /usr/share/kibana/src/ui/public/assets/favicons/favicon.ico && \
     cp elk.ico /usr/share/kibana/src/ui/public/assets/favicons/favicon-16x16.png && \
     cp elk.ico /usr/share/kibana/src/ui/public/assets/favicons/favicon-32x32.png && \
-    cp create_kibana_index.js /usr/share/kibana/src/core_plugins/elasticsearch/lib/ && \
 
 # Setup plugins, rebuild bundle
     #cd /usr/share/kibana/plugins && \
@@ -24,7 +23,7 @@ RUN     cd /tmp/dist/ && \
     #tar xvfz network_vis.tar.gz && \
     #rm *.tar.gz && \
     rm -rf /usr/share/kibana/optimize/bundles/* && \
-    /usr/share/kibana/bin/kibana-plugin install https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-kibana-plugin/6.5.4-18/search-guard-kibana-plugin-6.5.4-18.zip && \
+    /usr/share/kibana/bin/kibana-plugin install https://search.maven.org/remotecontent?filepath=com/floragunn/search-guard-kibana-plugin/6.6.1-18.1/search-guard-kibana-plugin-6.6.1-18.1.zip && \
     /usr/share/kibana/bin/kibana --optimize
 
 # Setup user, groups and configs
