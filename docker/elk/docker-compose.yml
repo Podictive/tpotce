@@ -26,7 +26,9 @@ services:
      - "127.0.0.1:64298:9200"
     image: "dtagdevsec/elasticsearch:1903"
     volumes:
-     - /data:/data
+     - /data/elk/data:/data
+     - /data/elk/log:/log
+     - /data/elk/certificates/:/usr/share/elasticsearch/config/certificates:ro
 
 ## Kibana service
   kibana:

@@ -1,0 +1,6 @@
+# Ignore generated files by install.sh
+etc/sgconfig/sg_internal_users.yml
+etc/tlstoolconfig.yml
+etc/compose/elk_environment
+etc/elk_passwords.conf
+
