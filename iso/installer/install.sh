@@ -15,7 +15,7 @@ myLSB_STABLE_SUPPORTED="stretch"
 myLSB_TESTING_SUPPORTED="sid"
 myREMOTESITES="https://hub.docker.com https://github.com https://pypi.python.org https://debian.org"
 myPREINSTALLPACKAGES="apache2-utils curl dialog figlet grc libcrack2 libpq-dev lsb-release net-tools software-properties-common toilet"
-myINSTALLPACKAGES="apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 lm-sensors man mosh multitail net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant"
+myINSTALLPACKAGES="apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 lm-sensors man mosh multitail net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant default-jre"
 myINFO="\
 ########################################
 ### T-Pot Installer for Debian (Sid) ###
@@ -645,12 +645,12 @@ echo "$myNETWORK_WLANEXAMPLE" | tee -a /etc/network/interfaces
 fuBANNER "SSH roaming off"
 echo "UseRoaming no" | tee -a /etc/ssh/ssh_config
 
-# Installing elasticdump, yq, hashlib
+# Installing elasticdump, yq, passlib
 fuBANNER "Installing pkgs"
 npm install https://github.com/taskrabbit/elasticsearch-dump -g
 pip install --upgrade pip
 hash -r
-pip install elasticsearch-curator yq hashlib
+pip install elasticsearch-curator yq passlib bcrypt
 
 # Cloning T-Pot from GitHub
 fuBANNER "Cloning T-Pot"
@@ -841,6 +841,8 @@ echo -n "Loading configuration into elasticsearch"
        -cacert /data/elk/certificates/ca.pem \
        -cert /data/elk/certificates/tsec.pem \
        -key /data/elk/certificates/tsec.key
+wait
+
 echo "Succesfully imported configuration into elasticsearch!"
 
 systemctl enable tpot
