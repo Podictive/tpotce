@@ -746,7 +746,7 @@ mkdir -p /data/adbhoney/downloads /data/adbhoney/log \
          /data/cowrie/log/tty/ /data/cowrie/downloads/ /data/cowrie/keys/ /data/cowrie/misc/ \
          /data/dionaea/log /data/dionaea/bistreams /data/dionaea/binaries /data/dionaea/rtp /data/dionaea/roots/ftp /data/dionaea/roots/tftp /data/dionaea/roots/www /data/dionaea/roots/upnp \
          /data/elasticpot/log \
-         /data/elk/data /data/elk/log /data/elk/certificates \ 
+         /data/elk/data /data/elk/log /data/elk/certificates \
          /data/glastopf/log /data/glastopf/db \
          /data/honeytrap/log/ /data/honeytrap/attacks/ /data/honeytrap/downloads/ \
          /data/glutton/log \
