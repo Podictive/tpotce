@@ -7,8 +7,8 @@ RUN cp /root/dist/elasticsearch.yml /usr/share/elasticsearch/config/ && \
     rm -rf /usr/share/elasticsearch/modules/x-pack-ml
 
 # Healthcheck
-HEALTHCHECK --retries=10 CMD curl -s -XGET 'http://127.0.0.1:9200/_cat/health'
+HEALTHCHECK --retries=10 CMD curl -k -s -XGET 'https://127.0.0.1:9200/_cat/health'
 
 # Start ELK
 USER elasticsearch:elasticsearch
-CMD ["/usr/share/elasticsearch/bin/elasticsearch"]
+
