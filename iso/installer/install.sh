@@ -725,6 +725,7 @@ echo "$myUPDATECHECK" | tee /etc/apt/apt.conf.d/10periodic
 # Let's make sure to reboot the system after a kernel panic
 fuBANNER "Tweak sysctl"
 echo "$mySYSCTLCONF" | tee -a /etc/sysctl.conf
+sysctl -p  # Activate settings so elasticsearch can start
 
 # Let's setup fail2ban config
 fuBANNER "Setup fail2ban"
@@ -833,26 +834,23 @@ ${bcrypt_readallpassword},${bcrypt_snapshotrestorepassword}' \
             < /opt/tpot/iso/installer/sgconfig/sg_internal_users.yml.tpl > /opt/tpot/etc/sgconfig/sg_internal_users.yml
 echo "Done creating configuration"
 
-echo -n "Starting elasticsearch for configuration"
-docker-compose -f $myTPOTCOMPOSE up -d elasticsearch
-wait
-echo -n "Loading configuration into elasticsearch"
-/opt/tpot/bin/tools/sgadmin.sh -cd /opt/tpot/etc/sgconfig -icl -nhnv  -p64299 \
-       -cacert /data/elk/certificates/ca.pem \
-       -cert /data/elk/certificates/tsec.pem \
-       -key /data/elk/certificates/tsec.key
-wait
-
-echo "Succesfully imported configuration into elasticsearch!"
-
-systemctl enable tpot
-
 # Let's take care of some files and permissions
 fuBANNER "Permissions"
 chmod 760 -R /data
 chown tpot:tpot -R /data
 chmod 644 -R /data/nginx/conf
 chmod 644 -R /data/nginx/cert
+
+fuBANNER "SearchGuard"
+docker-compose -f $myTPOTCOMPOSE up -d elasticsearch
+sleep 2
+/opt/tpot/bin/tools/sgadmin.sh -cd /opt/tpot/etc/sgconfig -icl -nhnv  -p64299 \
+       -cacert /data/elk/certificates/ca.pem \
+       -cert /data/elk/certificates/tsec.pem \
+       -key /data/elk/certificates/tsec.key
+
+fuBANNER "Enable TPOT"
+systemctl enable tpot
 
 # Let's replace "quiet splash" options, set a console font for more screen canvas and update grub
 fuBANNER "Options"
