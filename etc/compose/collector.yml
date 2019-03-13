@@ -125,7 +125,7 @@ services:
     ports:
      - "127.0.0.1:64298:9200"
      - "127.0.0.1:64299:9300"
-    image: "dtagdevsec/elasticsearch:1903"
+    image: "podictive/elasticsearch:debian"
     volumes:
      - /data/elk/data:/data
      - /data/elk/log:/data
@@ -140,7 +140,7 @@ services:
         condition: service_healthy
     ports:
      - "127.0.0.1:64296:5601"
-    image: "dtagdevsec/kibana:1903"
+    image: "podictive/kibana:debian"
 
 ## Logstash service
   logstash:
