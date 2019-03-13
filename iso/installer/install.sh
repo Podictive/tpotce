@@ -777,19 +777,22 @@ if [ ! -f /data/elk/certificates/ca.key ]; then
   echo "Generate certificates"
   cat >/opt/tpot/etc/tlstoolconfig.yml <<EOM
 defaults:
-      validityDays: 3650 
+      validityDays: 3650
       httpsEnabled: true
       verifyHostnames: true
       resolveHostnames: true
 ca:
    root:
-      # The distinguished name of this CA. You must specify a distinguished name.   
-      dn: cn=lasticca
-      file: ca.pem 
+      # The distinguished name of this CA. You must specify a distinguished name.
+      dn: cn=tpotcluster
+      file: ca.pem
 nodes:
-  - name: tpotcluster
-    dn: CN=$myHOST
-    dns: tpotcluster $myHOST
+  - name: elasticsearch
+    dn: CN=elasticsearch
+    dns:
+      - elasticsearch
+      - localhost
+      - $myHOST
 clients:
   - name: tsec
     dn: CN=tsec
@@ -813,6 +816,7 @@ if [ ! -f /opt/tpot/etc/elk_passwords.conf ]; then
     echo "adminpassword=${adminpassword}"                     > /opt/tpot/etc/elk_passwords.conf
     echo "logstashpassword=${logstashpassword}"               >> /opt/tpot/etc/elk_passwords.conf
     echo "kibanapassword=${kibanapassword}"                   >> /opt/tpot/etc/elk_passwords.conf
+    echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/es_serviceaccount_pw
     echo "kibanareadonlypassword=${kibanareadonlypassword}"   >> /opt/tpot/etc/elk_passwords.conf
     echo "readallpassword=${readallpassword}"                 >> /opt/tpot/etc/elk_passwords.conf
     echo "snapshotrestorepassword=${snapshotrestorepassword}" >> /opt/tpot/etc/elk_passwords.conf
@@ -822,16 +826,14 @@ else
 fi
 
 echo -n "Hashing passwords.."
-bcrypt_adminpassword=`python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${adminpassword}")'`
-bcrypt_logstashpassword=`python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${logstashpassword}")'`
-bcrypt_kibanapassword=`python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${kibanapassword}")'`
-bcrypt_kibanareadonlypassword=`python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${kibanareadonlypassword}")'`
-bcrypt_readallpassword=`python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${readallpassword}")'`
-bcrypt_snapshotrestorepassword=`python -c 'from passlib.hash import bcrypt;print bcrypt.hash("${snapshotrestorepassword}")'`
+export bcrypt_adminpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${adminpassword}')"`
+export bcrypt_logstashpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${logstashpassword}')"`
+export bcrypt_kibanapassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${kibanapassword}')"`
+export bcrypt_kibanareadonlypassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${kibanareadonlypassword}')"`
+export bcrypt_readallpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${readallpassword}')"`
+export bcrypt_snapshotrestorepassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${snapshotrestorepassword}')"`
 
-envsubst '${bcrypt_adminpassword},${bcrypt_logstashpassword},\
-${bcrypt_bcrypt_kibanapassword},${bcrypt_kibanareadonlypassword},\
-${bcrypt_readallpassword},${bcrypt_snapshotrestorepassword}' \
+envsubst '${bcrypt_adminpassword},${bcrypt_logstashpassword},${bcrypt_kibanapassword},${bcrypt_kibanareadonlypassword},${bcrypt_readallpassword},${bcrypt_snapshotrestorepassword}' \
             < /opt/tpot/iso/installer/sgconfig/sg_internal_users.yml.tpl > /opt/tpot/etc/sgconfig/sg_internal_users.yml
 echo "Done creating configuration"
 
@@ -844,7 +846,7 @@ chmod 644 -R /data/nginx/cert
 
 fuBANNER "SearchGuard"
 docker-compose -f $myTPOTCOMPOSE up -d elasticsearch
-sleep 2
+sleep 10  # TODO: Remake this into something better for elasticsearch to start
 /opt/tpot/bin/tools/sgadmin.sh -cd /opt/tpot/etc/sgconfig -icl -nhnv  -p64299 \
        -cacert /data/elk/certificates/ca.pem \
        -cert /data/elk/certificates/tsec.pem \
