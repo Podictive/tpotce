@@ -7,14 +7,14 @@ network.host: 0.0.0.0
 http.cors.enabled: true
 http.cors.allow-origin: "*"
 
-searchguard.ssl.transport.pemcert_filepath: /usr/share/elasticsearch/config/certificates/tpotcluster.pem
-searchguard.ssl.transport.pemkey_filepath: /usr/share/elasticsearch/config/certificates/tpotcluster.key
+searchguard.ssl.transport.pemcert_filepath: /usr/share/elasticsearch/config/certificates/elasticsearch.pem
+searchguard.ssl.transport.pemkey_filepath: /usr/share/elasticsearch/config/certificates/elasticsearch.key
 #searchguard.ssl.transport.pemkey_password: 
 searchguard.ssl.transport.pemtrustedcas_filepath: /usr/share/elasticsearch/config/certificates/ca.pem
 searchguard.ssl.transport.enforce_hostname_verification: true
 searchguard.ssl.http.enabled: true
-searchguard.ssl.http.pemcert_filepath: /usr/share/elasticsearch/config/certificates/tpotcluster_http.pem
-searchguard.ssl.http.pemkey_filepath: /usr/share/elasticsearch/config/certificates/tpotcluster_http.key
+searchguard.ssl.http.pemcert_filepath: /usr/share/elasticsearch/config/certificates/elasticsearch_http.pem
+searchguard.ssl.http.pemkey_filepath: /usr/share/elasticsearch/config/certificates/elasticsearch_http.key
 #searchguard.ssl.http.pemkey_password: 
 searchguard.ssl.http.pemtrustedcas_filepath: /usr/share/elasticsearch/config/certificates/ca.pem
 
