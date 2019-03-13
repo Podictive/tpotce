@@ -1,0 +1,23 @@
+---
+# Default Kibana configuration from kibana-docker.
+
+server.name: kibana
+server.host: "0"
+elasticsearch.url: https://elasticsearch:9200
+
+#server.basePath: "/kibana"
+kibana.defaultAppId: "dashboards"
+server.host: "0.0.0.0"
+
+server.rewriteBasePath: false
+
+elasticsearch.username: "kibanaserver"
+elasticsearch.password: "${ES_SA_PASSWORD}"
+
+elasticsearch.ssl.certificateAuthorities: "/usr/share/kibana/config/certificates/ca.pem"
+#elasticsearch.ssl.certificate: /usr/share/kibana/config/certificates/tsec.pem
+#elasticsearch.ssl.key: /usr/share/kibana/config/certificates/tsec.key
+# Allow using a client certificate defined in elasticsearch.ssl.certificate
+#searchguard.allow_client_certificates: true
+
+searchguard.auth.type: "basicauth"
