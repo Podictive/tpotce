@@ -816,7 +816,7 @@ if [ ! -f /opt/tpot/etc/elk_passwords.conf ]; then
     echo "adminpassword=${adminpassword}"                     > /opt/tpot/etc/elk_passwords.conf
     echo "logstashpassword=${logstashpassword}"               >> /opt/tpot/etc/elk_passwords.conf
     echo "kibanapassword=${kibanapassword}"                   >> /opt/tpot/etc/elk_passwords.conf
-    echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/es_serviceaccount_pw
+    echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/compose/es_serviceaccount_pw
     echo "kibanareadonlypassword=${kibanareadonlypassword}"   >> /opt/tpot/etc/elk_passwords.conf
     echo "readallpassword=${readallpassword}"                 >> /opt/tpot/etc/elk_passwords.conf
     echo "snapshotrestorepassword=${snapshotrestorepassword}" >> /opt/tpot/etc/elk_passwords.conf
