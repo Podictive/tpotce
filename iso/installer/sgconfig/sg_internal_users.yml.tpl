@@ -2,7 +2,7 @@
 # The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
 
 #password is: admin... just kidding!
-admin:
+${myCONF_WEB_USER}:
   readonly: true
   hash: ${bcrypt_adminpassword}
   roles:

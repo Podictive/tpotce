@@ -832,6 +832,7 @@ echo "ES_LOGSTSTASH_PW=${logstashpassword}"               >> /opt/tpot/etc/compo
 echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/compose/es_serviceaccount_pw
 
 echo -n "Hashing passwords.."
+export myCONF_WEB_USER=${myCONF_WEB_USER}
 export bcrypt_adminpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${adminpassword}')"`
 export bcrypt_logstashpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${logstashpassword}')"`
 export bcrypt_kibanapassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${kibanapassword}')"`
@@ -839,7 +840,7 @@ export bcrypt_kibanareadonlypassword=`python -c "from passlib.hash import bcrypt
 export bcrypt_readallpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${readallpassword}')"`
 export bcrypt_snapshotrestorepassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${snapshotrestorepassword}')"`
 
-envsubst '${bcrypt_adminpassword},${bcrypt_logstashpassword},${bcrypt_kibanapassword},${bcrypt_kibanareadonlypassword},${bcrypt_readallpassword},${bcrypt_snapshotrestorepassword}' \
+envsubst '${bcrypt_adminpassword},${bcrypt_logstashpassword},${bcrypt_kibanapassword},${bcrypt_kibanareadonlypassword},${bcrypt_readallpassword},${bcrypt_snapshotrestorepassword},${myCONF_WEB_USER}' \
             < /opt/tpot/iso/installer/sgconfig/sg_internal_users.yml.tpl > /opt/tpot/etc/sgconfig/sg_internal_users.yml
 echo "Done creating configuration"
 

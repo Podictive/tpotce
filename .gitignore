@@ -3,4 +3,5 @@ etc/sgconfig/sg_internal_users.yml
 etc/tlstoolconfig.yml
 etc/compose/elk_environment
 etc/elk_passwords.conf
-
+etc/compose/es_serviceaccount_pw
+etc/compose/es_logstash
