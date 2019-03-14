@@ -262,7 +262,8 @@ services:
      - /data/elk/certificates/:/usr/share/kibana/config/certificates:ro
     env_file:
      - /opt/tpot/etc/compose/es_serviceaccount_pw
-    image: "podictive/kibana:debian"
+     - /opt/tpot/etc/compose/es_logstash
+    image: "podictive/logstash:debian"
 
 ## Logstash service
   logstash:
@@ -276,6 +277,7 @@ services:
     image: "dtagdevsec/logstash:1903"
     volumes:
      - /data:/data
+     - /data/elk/certificates/:/usr/share/logstash/config/certificates:ro
 
 ## Elasticsearch-head service
   head:

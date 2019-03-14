@@ -806,24 +806,30 @@ fi
 
 if [ ! -f /opt/tpot/etc/elk_passwords.conf ]; then
     echo -n "Generating passwords"
-    adminpassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+    adminpassword=${myCONF_WEB_PW}
     logstashpassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
     kibanapassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
     kibanareadonlypassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
     readallpassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
     snapshotrestorepassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
-
-    echo "adminpassword=${adminpassword}"                     > /opt/tpot/etc/elk_passwords.conf
-    echo "logstashpassword=${logstashpassword}"               >> /opt/tpot/etc/elk_passwords.conf
-    echo "kibanapassword=${kibanapassword}"                   >> /opt/tpot/etc/elk_passwords.conf
-    echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/compose/es_serviceaccount_pw
-    echo "kibanareadonlypassword=${kibanareadonlypassword}"   >> /opt/tpot/etc/elk_passwords.conf
-    echo "readallpassword=${readallpassword}"                 >> /opt/tpot/etc/elk_passwords.conf
-    echo "snapshotrestorepassword=${snapshotrestorepassword}" >> /opt/tpot/etc/elk_passwords.conf
 else
-    echo -n "Importing passwords"
+    echo -n "Importing passwords.. "
     source /opt/tpot/etc/elk_passwords.conf
 fi
+
+echo -n "Writing config files.. "
+echo "adminpassword=${adminpassword}"                     > /opt/tpot/etc/elk_passwords.conf
+echo "logstashpassword=${logstashpassword}"               >> /opt/tpot/etc/elk_passwords.conf
+echo "kibanapassword=${kibanapassword}"                   >> /opt/tpot/etc/elk_passwords.conf
+echo "kibanareadonlypassword=${kibanareadonlypassword}"   >> /opt/tpot/etc/elk_passwords.conf
+echo "readallpassword=${readallpassword}"                 >> /opt/tpot/etc/elk_passwords.conf
+echo "snapshotrestorepassword=${snapshotrestorepassword}" >> /opt/tpot/etc/elk_passwords.conf
+
+echo "ES_LOGSTASH_TARGET=https://localhost:64298"         > /opt/tpot/etc/compose/es_logstash
+echo "ES_LOGSTSTASH_USER=logstash"                        >> /opt/tpot/etc/compose/es_logstash
+echo "ES_LOGSTSTASH_PW=${logstashpassword}"               >> /opt/tpot/etc/compose/es_logstash
+
+echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/compose/es_serviceaccount_pw
 
 echo -n "Hashing passwords.."
 export bcrypt_adminpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${adminpassword}')"`

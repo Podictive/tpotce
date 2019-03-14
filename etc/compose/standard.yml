@@ -491,9 +491,11 @@ services:
         condition: service_healthy
     env_file:
      - /opt/tpot/etc/compose/elk_environment
-    image: "dtagdevsec/logstash:1903"
+     - /opt/tpot/etc/compose/es_logstash
+    image: "podictive/logstash:debian"
     volumes:
      - /data:/data
+     - /data/elk/certificates/:/usr/share/logstash/config/certificates:ro
 
 ## Elasticsearch-head service
   head:
