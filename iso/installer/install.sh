@@ -771,6 +771,12 @@ fuBANNER "Copy configs"
 tar xvfz /opt/tpot/etc/objects/elkbase.tgz -C /
 cp /opt/tpot/host/etc/systemd/* /etc/systemd/system/
 
+# Let's create ews.ip before reboot and prevent race condition for first start
+fuBANNER "Update IP"
+/opt/tpot/bin/updateip.sh
+
+source /opt/tpot/etc/compose/elk_environment
+
 fuBANNER "SearchGuard admin"
 
 if [ ! -f /data/elk/certificates/ca.key ]; then
@@ -793,6 +799,9 @@ nodes:
       - elasticsearch
       - localhost
       - $myHOST
+    ip:
+      - ${MY_EXTIP}
+      - ${MY_INTIP}
 clients:
   - name: tsec
     dn: CN=tsec
@@ -890,10 +899,6 @@ $myUSERPROMPT
 PATH="$PATH:/opt/tpot/bin"
 EOF
 done
-
-# Let's create ews.ip before reboot and prevent race condition for first start
-fuBANNER "Update IP"
-/opt/tpot/bin/updateip.sh
 
 # Let's clean up apt
 fuBANNER "Clean up"
