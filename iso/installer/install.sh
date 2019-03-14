@@ -595,11 +595,13 @@ fuBANNER "Installing ..."
 
 fuGET_DEPS
 
+mkdir -p /data/nginx/conf
+mkdir -p /data/nginx/cert
+
 # If flavor is SENSOR do not write credentials
 if ! [ "$myCONF_TPOT_FLAVOR" == "SENSOR" ];
   then
     fuBANNER "Webuser creds"
-    mkdir -p /data/nginx/conf
     htpasswd -b -c /data/nginx/conf/nginxpasswd "$myCONF_WEB_USER" "$myCONF_WEB_PW"
     echo
 fi
@@ -608,7 +610,6 @@ fi
 if ! [ "$myCONF_TPOT_FLAVOR" == "SENSOR" ];
 then
   fuBANNER "NGINX Certificate"
-  mkdir -p /data/nginx/cert
   openssl req \
           -nodes \
           -x509 \
@@ -777,11 +778,13 @@ fuBANNER "Update IP"
 
 source /opt/tpot/etc/compose/elk_environment
 
-fuBANNER "SearchGuard admin"
+if ! [ "$myCONF_TPOT_FLAVOR" == "SENSOR" ];
+  then
+    fuBANNER "SearchGuard admin"
 
-if [ ! -f /data/elk/certificates/ca.key ]; then
-  echo "Generate certificates"
-  cat >/opt/tpot/etc/tlstoolconfig.yml <<EOM
+    if [ ! -f /data/elk/certificates/ca.key ]; then
+      echo "Generate certificates"
+      cat >/opt/tpot/etc/tlstoolconfig.yml <<EOM
 defaults:
       validityDays: 3650
       httpsEnabled: true
@@ -808,65 +811,70 @@ clients:
     admin: true
 EOM
 
-  /opt/tpot/bin/tools/sgtlstool.sh -c /opt/tpot/etc/tlstoolconfig.yml -ca -crt -t /data/elk/certificates/
-else
-  echo "Will not regenerate certificates"
+      /opt/tpot/bin/tools/sgtlstool.sh -c /opt/tpot/etc/tlstoolconfig.yml -ca -crt -t /data/elk/certificates/
+    else
+      echo "Will not regenerate certificates"
+    fi
+
+    if [ ! -f /opt/tpot/etc/elk_passwords.conf ]; then
+        echo -n "Generating passwords"
+        adminpassword=${myCONF_WEB_PW}
+        logstashpassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+        kibanapassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+        kibanareadonlypassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+        readallpassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+        snapshotrestorepassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
+    else
+        echo -n "Importing passwords.. "
+        source /opt/tpot/etc/elk_passwords.conf
+    fi
+
+    echo -n "Writing config files.. "
+    echo "adminpassword=${adminpassword}"                     > /opt/tpot/etc/elk_passwords.conf
+    echo "logstashpassword=${logstashpassword}"               >> /opt/tpot/etc/elk_passwords.conf
+    echo "kibanapassword=${kibanapassword}"                   >> /opt/tpot/etc/elk_passwords.conf
+    echo "kibanareadonlypassword=${kibanareadonlypassword}"   >> /opt/tpot/etc/elk_passwords.conf
+    echo "readallpassword=${readallpassword}"                 >> /opt/tpot/etc/elk_passwords.conf
+    echo "snapshotrestorepassword=${snapshotrestorepassword}" >> /opt/tpot/etc/elk_passwords.conf
+
+    echo "ES_LOGSTASH_TARGET=elasticsearch:9200"              > /opt/tpot/etc/compose/es_logstash
+    echo "ES_LOGSTASH_USER=logstash"                          >> /opt/tpot/etc/compose/es_logstash
+    echo "ES_LOGSTASH_PW=${logstashpassword}"                 >> /opt/tpot/etc/compose/es_logstash
+
+    echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/compose/es_serviceaccount_pw
+
+    echo -n "Hashing passwords.."
+    export myCONF_WEB_USER=${myCONF_WEB_USER}
+    export bcrypt_adminpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${adminpassword}')"`
+    export bcrypt_logstashpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${logstashpassword}')"`
+    export bcrypt_kibanapassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${kibanapassword}')"`
+    export bcrypt_kibanareadonlypassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${kibanareadonlypassword}')"`
+    export bcrypt_readallpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${readallpassword}')"`
+    export bcrypt_snapshotrestorepassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${snapshotrestorepassword}')"`
+
+    envsubst '${bcrypt_adminpassword},${bcrypt_logstashpassword},${bcrypt_kibanapassword},${bcrypt_kibanareadonlypassword},${bcrypt_readallpassword},${bcrypt_snapshotrestorepassword},${myCONF_WEB_USER}' \
+                < /opt/tpot/iso/installer/sgconfig/sg_internal_users.yml.tpl > /opt/tpot/etc/sgconfig/sg_internal_users.yml
+    echo "Done creating configuration"
 fi
-
-if [ ! -f /opt/tpot/etc/elk_passwords.conf ]; then
-    echo -n "Generating passwords"
-    adminpassword=${myCONF_WEB_PW}
-    logstashpassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
-    kibanapassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
-    kibanareadonlypassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
-    readallpassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
-    snapshotrestorepassword=`tr -cd '[:alnum:]' < /dev/urandom | fold -w30 | head -n1`
-else
-    echo -n "Importing passwords.. "
-    source /opt/tpot/etc/elk_passwords.conf
-fi
-
-echo -n "Writing config files.. "
-echo "adminpassword=${adminpassword}"                     > /opt/tpot/etc/elk_passwords.conf
-echo "logstashpassword=${logstashpassword}"               >> /opt/tpot/etc/elk_passwords.conf
-echo "kibanapassword=${kibanapassword}"                   >> /opt/tpot/etc/elk_passwords.conf
-echo "kibanareadonlypassword=${kibanareadonlypassword}"   >> /opt/tpot/etc/elk_passwords.conf
-echo "readallpassword=${readallpassword}"                 >> /opt/tpot/etc/elk_passwords.conf
-echo "snapshotrestorepassword=${snapshotrestorepassword}" >> /opt/tpot/etc/elk_passwords.conf
-
-echo "ES_LOGSTASH_TARGET=elasticsearch:9200"              > /opt/tpot/etc/compose/es_logstash
-echo "ES_LOGSTASH_USER=logstash"                          >> /opt/tpot/etc/compose/es_logstash
-echo "ES_LOGSTASH_PW=${logstashpassword}"                 >> /opt/tpot/etc/compose/es_logstash
-
-echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/compose/es_serviceaccount_pw
-
-echo -n "Hashing passwords.."
-export myCONF_WEB_USER=${myCONF_WEB_USER}
-export bcrypt_adminpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${adminpassword}')"`
-export bcrypt_logstashpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${logstashpassword}')"`
-export bcrypt_kibanapassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${kibanapassword}')"`
-export bcrypt_kibanareadonlypassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${kibanareadonlypassword}')"`
-export bcrypt_readallpassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${readallpassword}')"`
-export bcrypt_snapshotrestorepassword=`python -c "from passlib.hash import bcrypt;print bcrypt.hash('${snapshotrestorepassword}')"`
-
-envsubst '${bcrypt_adminpassword},${bcrypt_logstashpassword},${bcrypt_kibanapassword},${bcrypt_kibanareadonlypassword},${bcrypt_readallpassword},${bcrypt_snapshotrestorepassword},${myCONF_WEB_USER}' \
-            < /opt/tpot/iso/installer/sgconfig/sg_internal_users.yml.tpl > /opt/tpot/etc/sgconfig/sg_internal_users.yml
-echo "Done creating configuration"
 
 # Let's take care of some files and permissions
 fuBANNER "Permissions"
 chmod 760 -R /data
 chown tpot:tpot -R /data
+
 chmod 644 -R /data/nginx/conf
 chmod 644 -R /data/nginx/cert
 
-fuBANNER "SearchGuard"
-docker-compose -f $myTPOTCOMPOSE up -d elasticsearch
-sleep 10  # TODO: Remake this into something better for elasticsearch to start
-/opt/tpot/bin/tools/sgadmin.sh -cd /opt/tpot/etc/sgconfig -icl -nhnv  -p64410 \
-       -cacert /data/elk/certificates/ca.pem \
-       -cert /data/elk/certificates/tsec.pem \
-       -key /data/elk/certificates/tsec.key
+if ! [ "$myCONF_TPOT_FLAVOR" == "SENSOR" ];
+  then
+    fuBANNER "SearchGuard"
+    docker-compose -f $myTPOTCOMPOSE up -d elasticsearch
+    sleep 10  # TODO: Remake this into something better for elasticsearch to start
+    /opt/tpot/bin/tools/sgadmin.sh -cd /opt/tpot/etc/sgconfig -icl -nhnv  -p64410 \
+           -cacert /data/elk/certificates/ca.pem \
+           -cert /data/elk/certificates/tsec.pem \
+           -key /data/elk/certificates/tsec.key
+fi
 
 fuBANNER "Enable TPOT"
 systemctl enable tpot
