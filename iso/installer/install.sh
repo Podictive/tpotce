@@ -847,7 +847,7 @@ chmod 644 -R /data/nginx/cert
 fuBANNER "SearchGuard"
 docker-compose -f $myTPOTCOMPOSE up -d elasticsearch
 sleep 10  # TODO: Remake this into something better for elasticsearch to start
-/opt/tpot/bin/tools/sgadmin.sh -cd /opt/tpot/etc/sgconfig -icl -nhnv  -p64299 \
+/opt/tpot/bin/tools/sgadmin.sh -cd /opt/tpot/etc/sgconfig -icl -nhnv  -p64410 \
        -cacert /data/elk/certificates/ca.pem \
        -cert /data/elk/certificates/tsec.pem \
        -key /data/elk/certificates/tsec.key
