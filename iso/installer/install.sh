@@ -825,9 +825,9 @@ echo "kibanareadonlypassword=${kibanareadonlypassword}"   >> /opt/tpot/etc/elk_p
 echo "readallpassword=${readallpassword}"                 >> /opt/tpot/etc/elk_passwords.conf
 echo "snapshotrestorepassword=${snapshotrestorepassword}" >> /opt/tpot/etc/elk_passwords.conf
 
-echo "ES_LOGSTASH_TARGET=https://localhost:64298"         > /opt/tpot/etc/compose/es_logstash
-echo "ES_LOGSTSTASH_USER=logstash"                        >> /opt/tpot/etc/compose/es_logstash
-echo "ES_LOGSTSTASH_PW=${logstashpassword}"               >> /opt/tpot/etc/compose/es_logstash
+echo "ES_LOGSTASH_TARGET=elasticsearch:9200"              > /opt/tpot/etc/compose/es_logstash
+echo "ES_LOGSTASH_USER=logstash"                          >> /opt/tpot/etc/compose/es_logstash
+echo "ES_LOGSTASH_PW=${logstashpassword}"                 >> /opt/tpot/etc/compose/es_logstash
 
 echo "ES_SA_PASSWORD=${kibanapassword}"                   > /opt/tpot/etc/compose/es_serviceaccount_pw
 
