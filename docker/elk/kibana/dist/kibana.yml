@@ -2,10 +2,9 @@
 # Default Kibana configuration from kibana-docker.
 
 server.name: kibana
-server.host: "0"
 elasticsearch.url: https://elasticsearch:9200
 
-#server.basePath: "/kibana"
+server.basePath: "/kibana"
 kibana.defaultAppId: "dashboards"
 server.host: "0.0.0.0"
 
