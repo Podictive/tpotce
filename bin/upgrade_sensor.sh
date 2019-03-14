@@ -53,7 +53,7 @@ es_password=$(dialog --keep-window --insecure --backtitle "$myBACKTITLE" \
 
 echo "ES_LOGSTASH_TARGET=${es_target}"  > /opt/tpot/etc/compose/es_logstash
 echo "ES_LOGSTASH_USER=${es_username}"  >> /opt/tpot/etc/compose/es_logstash
-echo "ES_LOGSTSTASH_PW=${es_password}"  >> /opt/tpot/etc/compose/es_logstash
+echo "ES_LOGSTASH_PW=${es_password}"  >> /opt/tpot/etc/compose/es_logstash
 
 fuBANNER "REPORTING SENSOR"
 echo "Wrote the following configuration:"
@@ -64,7 +64,7 @@ rm -f /opt/tpot/etc/tpot.yml
 ln -s /opt/tpot/etc/compose/reporting_sensor.yml /opt/tpot/etc/tpot.yml
 
 fuBANNER "STARTING SENSOR"
-docker-compose -f /topt/tpot/etc/tpot.yml up -d
+docker-compose -f /opt/tpot/etc/tpot.yml up -d
 
 fuBANNER "DONE"
 echo "Please check the logfile of logstash if it's working."
