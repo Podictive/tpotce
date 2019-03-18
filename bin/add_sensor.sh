@@ -49,11 +49,19 @@ This means we have to make your elasticsearch directly accessible for the other 
 You do this preferably through a LAN or VPN. 
 You have to configure this yourself first." 10 70
 
+dialog --keep-window --backtitle "$myBACKTITLE" --title "Read this carefully" \
+        --msgbox "Keep in mind; being an elk-stack is a hard life.
+Receiving and processing honeypot information from multiple tpot-installations may
+require too much processing power for a single node. 
+At the moment, unfortunately, there's no documentation available how to
+upgrade your elk-stack to a multinode setup. 
+" 10 70
+
 
 if ! fuCHECK_ES_RUNNING; then
     dialog --keep-window --backtitle "$myBACKTITLE" --title "[ NOT OK ]" \
             --msgbox "\nElasticsearch is not running. Please start (or reboot) your tpot. " 7 47
-    exit 2
+#    exit 2
 fi
 
 ips="$(hostname -I) $(/opt/tpot/bin/myip.sh)"
@@ -114,3 +122,24 @@ echo "$sgconfig" >> /opt/tpot/etc/sgconfig/sg_internal_users.yml
 
 /bin/bash -c "cd /opt/tpot/etc &&  docker-compose -f tpot.yml -f tpot.override.yml up -d "
 
+
+dialog --keep-window --backtitle "$myBACKTITLE" --title "Read this carefully" \
+        --msgbox "New user added and elasticsearch is restarting. Press OK for further instructions" 10 70
+
+
+fuBANNER "FINALIZE"
+
+echo "CA-Certificate"
+echo "Please place the following CA-Certificate file in "
+echo "/data/elk/certificates/ca.pem: ":
+cat /data/elk/certificates/ca.pem
+
+echo 
+echo
+echo "After, start /opt/tpot/bin/upgrade_sensor.sh and follow the instructions"
+echo "You will need the following info:"
+echo
+echo "Username: ${sensorname}" 
+echo "Password: ${logstashpassword}"
+echo 
+echo "Cheers"
