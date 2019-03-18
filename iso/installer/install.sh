@@ -154,7 +154,7 @@ ListenStream=64294
 "
 myCRONJOBS="
 # Check if updated images are available and download them
-27 1 * * *      root    docker-compose -f /opt/tpot/etc/tpot.yml pull
+27 1 * * *      root    docker-compose -f /opt/tpot/etc/tpot.yml -f /opt/tpot/etc/tpot.override.yml pull
 
 # Delete elasticsearch logstash indices older than 90 days
 27 4 * * *      root    curator --config /opt/tpot/etc/curator/curator.yml /opt/tpot/etc/curator/actions.yml
@@ -707,6 +707,9 @@ case $myCONF_TPOT_FLAVOR in
     ln -s /opt/tpot/etc/compose/legacy.yml $myTPOTCOMPOSE
   ;;
 esac
+
+# Create empty override file in case elasticsearch is to listen on multiple interfaces
+echo "version: '2.3'" > tpot.override.yml
 
 # Let's load docker images in parallel
 function fuPULLIMAGES {

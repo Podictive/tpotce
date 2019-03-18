@@ -6,3 +6,5 @@ etc/elk_passwords.conf
 etc/compose/es_serviceaccount_pw
 etc/compose/es_logstash
 etc/tpot.yml
+etc/tpot.override.yml
+
