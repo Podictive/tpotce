@@ -1,4 +1,4 @@
-FROM docker.elastic.co/logstash/logstash-oss:6.6.2
+FROM docker.elastic.co/logstash/logstash-oss:6.6.1
 USER root
 RUN usermod -u 2000 logstash
 
@@ -7,11 +7,7 @@ RUN usermod -u 2000 logstash
 ADD dist/ /tmp/dist/
 
 # Setup env and apt
-==== BASE ====
-RUN sed -i 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
-    apk -U --no-cache add \
-==== BASE ====
-             bash \
+RUN yum install             bash \
              curl \
              git \
              libc6-compat \

@@ -1,4 +1,4 @@
-FROM docker.elastic.co/kibana/kibana-oss:6.6.2
+FROM docker.elastic.co/kibana/kibana-oss:6.6.1
 USER root
 RUN usermod -u 2000 kibana
 USER kibana
