@@ -21,9 +21,9 @@ RUN cd /tmp/dist/ && \
     cp elk.ico /usr/share/kibana/src/ui/public/assets/favicons/favicon-32x32.png
 
 # Setup user, groups and configs
-RUN sed -i "s/#005571/#e20074/g" /usr/share/kibana/src/ui/public/chrome/directives/global_nav/global_nav.less && \
-    sed -i "s/globalColorBlue/globalColorMagenta/g" /usr/share/kibana/src/ui/public/chrome/directives/global_nav/global_nav_link/global_nav_link.less && \
-    echo "@globalColorMagenta: #9E0051;" >> /usr/share/kibana/src/ui/public/styles/variables/colors.less
+RUN sed -i "s/#005571/#e20074/g" /usr/share/kibana/src/legacy/core_plugins/kibana/public/index.css && \
+    sed -i "s/#007ba4/#9e0051/g" /usr/share/kibana/src/legacy/core_plugins/kibana/public/index.css && \
+    sed -i "s/#00465d/#4f0028/g" /usr/share/kibana/src/legacy/core_plugins/kibana/public/index.css 
 
 # Healthcheck
 HEALTHCHECK --retries=10 CMD curl -s -XGET 'http://127.0.0.1:5601'
