@@ -41,7 +41,7 @@ fi
 
 es_target=$(dialog --keep-window --backtitle "$myBACKTITLE" \
                 --title "[ Enter the elasticsearch target ]" \
-                --inputbox "\nElasticsearch URL (e.g. 203.0.113.137:64297/es/)" 9 50 3>&1 1>&2 2>&3 3>&-)
+                --inputbox "\nElasticsearch URL (e.g. 203.0.113.137:64221)" 9 50 3>&1 1>&2 2>&3 3>&-)
 
 es_username=$(dialog --keep-window --backtitle "$myBACKTITLE" \
                 --title "[ Enter logstash username ]" \

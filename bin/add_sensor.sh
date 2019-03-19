@@ -137,8 +137,10 @@ cat /data/elk/certificates/ca.pem
 echo 
 echo
 echo "After, start /opt/tpot/bin/upgrade_sensor.sh and follow the instructions"
-echo "You will need the following info:"
+echo "You will need the following info (Choose one IP):"
 echo
+for ip in ${listen_addresses}; do
+     echo "IP: ${ip}:64221"
 echo "Username: ${sensorname}" 
 echo "Password: ${logstashpassword}"
 echo 
