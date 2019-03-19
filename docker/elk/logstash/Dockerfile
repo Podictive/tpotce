@@ -1,4 +1,4 @@
-FROM docker.elastic.co/logstash/logstash-oss:6.6.1
+FROM docker.elastic.co/logstash/logstash-oss:6.6.2
 USER root
 RUN usermod -u 2000 logstash
 
@@ -7,14 +7,17 @@ RUN usermod -u 2000 logstash
 ADD dist/ /tmp/dist/
 
 # Setup env and apt
-RUN yum install -y \
+==== BASE ====
+RUN sed -i 's/dl-cdn/dl-4/g' /etc/apk/repositories && \
+    apk -U --no-cache add \
+==== BASE ====
              bash \
              curl \
              git \
              libc6-compat \
              libzmq \
-             openjdk8-jre \
-             wget && \
+             nss \
+             openjdk8-jre && \
 
 # Get and install packages
     git clone --depth=1 https://github.com/dtag-dev-sec/listbot /etc/listbot && \

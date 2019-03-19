@@ -1,4 +1,4 @@
-FROM docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.1
+FROM docker.elastic.co/elasticsearch/elasticsearch-oss:6.6.2
 RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install -b com.floragunn:search-guard-6:6.6.1-24.1
 RUN usermod -u 2000 elasticsearch
 
