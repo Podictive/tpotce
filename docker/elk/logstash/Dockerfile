@@ -7,13 +7,14 @@ RUN usermod -u 2000 logstash
 ADD dist/ /tmp/dist/
 
 # Setup env and apt
-RUN yum install             bash \
+RUN yum install      -y       bash \
              curl \
              git \
              libc6-compat \
              libzmq \
              nss \
-             openjdk8-jre && \
+             openjdk8-jre \
+             wget  && \
 
 # Get and install packages
     git clone --depth=1 https://github.com/dtag-dev-sec/listbot /etc/listbot && \
