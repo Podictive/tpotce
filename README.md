@@ -1,3 +1,16 @@
+# Tpot Distributed
+
+This is an adapted version of Tpotce's upcoming Debian branch https://github.com/dtag-dev-sec/tpotce/tree/debian. Please note this is mostly a research project, and please consider it in beta stage.
+
+The following things have changed/added, in addition to the changelog of tpotce:
+
+* Added SearchGuard to add transport encryption, authentication and authorisation to the ELK-Stack
+* Added scripts to ease the creation of a distributed tpot, with multiple sensors reporting to one centralized manager-node
+* Base the ELK-images on those provided by Elastic. Tpotce built these themselves using Alpine Linux, which is not a supported platform.
+
+
+We will try to keep this branch in-sync with changes in debian's branch. Experiences, suggestions and pull requests are appreciated. You will have to do a reinstall; the update.sh script has not been tested or changed. 
+
 # T-Pot 19.03
 
 T-Pot 19.03 runs on Debian (Sid), is based heavily on
@@ -35,7 +48,7 @@ Furthermore we use the following tools
 
 # TL;DR
 1. Meet the [system requirements](#requirements). The T-Pot installation needs at least 6-8 GB RAM and 128 GB free disk space as well as a working internet connection.
-2. Download the T-Pot ISO from [GitHub](https://github.com/dtag-dev-sec/tpotce/releases) or [create it yourself](#createiso).
+2. Download the T-Pot ISO from [GitHub](https://github.com/podictive/tpotce/releases) or [create it yourself](#createiso).
 3. Install the system in a [VM](#vm) or on [physical hardware](#hw) with [internet access](#placement).
 4. Enjoy your favorite beverage - [watch](https://sicherheitstacho.eu) and [analyze](#kibana).
 
@@ -130,7 +143,7 @@ Within the T-Pot project, we provide all the tools and documentation necessary t
 
 The source code and configuration files are fully stored in the T-Pot GitHub repository. The docker images are pre-configured for the T-Pot environment. If you want to run the docker images separately, make sure you study the docker-compose configuration (`/opt/tpot/etc/tpot.yml`) and the T-Pot systemd script (`/etc/systemd/system/tpot.service`), as they provide a good starting point for implementing changes.
 
-The individual docker configurations are located in the [docker folder](https://github.com/dtag-dev-sec/tpotce/tree/master/docker).
+The individual docker configurations are located in the [docker folder](https://github.com/podictive/tpotce/tree/master/docker).
 
 <a name="requirements"></a>
 # System Requirements
@@ -148,6 +161,15 @@ Depending on your installation type, whether you install on [real hardware](#har
 ##### Sensor Installation
 - Honeypots: adbhoney, ciscoasa, conpot, cowrie, dionaea, elasticpot, heralding, honeytrap, mailoney, rdpy, snare, tanner and vnclowpot
 - Tools: cockpit
+
+- 6-8 GB RAM (less RAM is possible but might introduce swapping)
+- 128 GB SSD (smaller is possible but limits the capacity of storing events)
+- Network via DHCP
+- A working, non-proxied, internet connection
+
+##### Reporting Sensor Installation
+- Honeypots: adbhoney, ciscoasa, conpot, cowrie, dionaea, elasticpot, heralding, honeytrap, mailoney, rdpy, snare, tanner and vnclowpot
+- Tools: cockpit logstash
 
 - 6-8 GB RAM (less RAM is possible but might introduce swapping)
 - 128 GB SSD (smaller is possible but limits the capacity of storing events)
@@ -194,18 +216,18 @@ Depending on your installation type, whether you install on [real hardware](#har
 # Installation
 The installation of T-Pot is straight forward and heavily depends on a working, transparent and non-proxied up and running internet connection. Otherwise the installation **will fail!**
 
-Firstly, decide if you want to download our prebuilt installation ISO image from [GitHub](https://github.com/dtag-dev-sec/tpotce/releases), [create it yourself](#createiso) ***or*** [post-install on an existing Debian 9.7 (Stretch)](#postinstall).
+Firstly, decide if you want to download our prebuilt installation ISO image from [GitHub](https://github.com/podictive/tpotce/releases), [create it yourself](#createiso) ***or*** [post-install on an existing Debian 9.7 (Stretch)](#postinstall).
 
 Secondly, decide where you want to let the system run: [real hardware](#hardware) or in a [virtual machine](#vm)?
 
 <a name="prebuilt"></a>
 ## Prebuilt ISO Image
-We provide an installation ISO image for download (~50MB), which is created using the same [tool](https://github.com/dtag-dev-sec/tpotce) you can use yourself in order to create your own image. It will basically just save you some time downloading components and creating the ISO image.
-You can download the prebuilt installation image from [GitHub](https://github.com/dtag-dev-sec/tpotce/releases) and jump to the [installation](#vm) section.
+We provide an installation ISO image for download (~50MB), which is created using the same [tool](https://github.com/podictive/tpotce) you can use yourself in order to create your own image. It will basically just save you some time downloading components and creating the ISO image.
+You can download the prebuilt installation image from [GitHub](https://github.com/podictive/tpotce/releases) and jump to the [installation](#vm) section.
 
 <a name="createiso"></a>
 ## Create your own ISO Image
-For transparency reasons and to give you the ability to customize your install, we provide you the [ISO Creator](https://github.com/dtag-dev-sec/tpotce) that enables you to create your own ISO installation image.
+For transparency reasons and to give you the ability to customize your install, we provide you the [ISO Creator](https://github.com/podictive/tpotce) that enables you to create your own ISO installation image.
 
 **Requirements to create the ISO image:**
 - Debian 9.7 or newer as host system (others *may* work, but *remain* untested)
@@ -217,7 +239,7 @@ For transparency reasons and to give you the ability to customize your install, 
 
 1. Clone the repository and enter it.
 ```
-git clone https://github.com/dtag-dev-sec/tpotce
+git clone https://github.com/podictive/tpotce
 cd tpotce
 ```
 2. Invoke the script that builds the ISO image.
@@ -266,7 +288,7 @@ The T-Pot Universal Installer will upgrade the system to Debian (Sid) and instal
 Just follow these steps:
 
 ```
-git clone https://github.com/dtag-dev-sec/tpotce
+git clone https://github.com/podictive/tpotce
 cd tpotce/iso/installer/
 ./install.sh --type=user
 ```
@@ -280,7 +302,7 @@ You can also let the installer run automatically if you provide your own `tpot.c
 Just follow these steps while adjusting `tpot.conf` to your needs:
 
 ```
-git clone https://github.com/dtag-dev-sec/tpotce
+git clone https://github.com/podictive/tpotce
 cd tpotce/iso/installer/
 cp tpot.conf.dist tpot.conf
 ./install.sh --type=auto --conf=tpot.conf
@@ -323,6 +345,16 @@ In case you need external SSH access, forward TCP port 64295 to T-Pot, see below
 In case you need external Web UI access, forward TCP port 64297 to T-Pot, see below.
 
 T-Pot requires outgoing git, http, https connections for updates (Debian, Docker, GitHub, PyPi) and attack submission (ewsposter, hpfeeds). Ports and availability may vary based on your geographical location.
+
+<a name="distributedinstall"></a>
+# Distributed install
+## add_sensor.sh
+Via the script add_sensor.sh you can configure your tpot installation to accept another sensor. You will be asked to choose the IP-address the other sensors will reach your manager on. Make sure to choose an IP-address which is only accessible by these sensors, e.g. by configuring a VPN or VLAN. After, you will be asked to give a name for your new sensor. The script will generate a password and instruct you what to do next.
+
+## upgrade_sensor.sh
+By following the instructions of `add_sensor.sh` on the manager, you should have created a `/data/elk/certificates/ca.pem` with the contents as indicated by `add_sensor.sh`. Next, you should run `upgrade_sensor.sh` on the sensor to update the sensor to a `reporting sensor`. 
+
+This will reconfigure your sensor to send its data to your manager (elasticsearch) via logstash. 
 
 <a name="updates"></a>
 # Updates
@@ -423,7 +455,7 @@ As with every development there is always room for improvements ...
 
 Some features may be provided with updated docker images, others may require some hands on from your side.
 
-You are always invited to participate in development on our [GitHub](https://github.com/dtag-dev-sec/tpotce) page.
+You are always invited to participate in development on our [GitHub](https://github.com/podictive/tpotce) page.
 
 <a name="disclaimer"></a>
 # Disclaimer
@@ -435,12 +467,12 @@ You are always invited to participate in development on our [GitHub](https://git
 
 <a name="faq"></a>
 # FAQ
-Please report any issues or questions on our [GitHub issue list](https://github.com/dtag-dev-sec/tpotce/issues), so the community can participate.
+Please report any issues or questions on our [GitHub issue list](https://github.com/podictive/tpotce/issues), so the community can participate.
 
 <a name="contact"></a>
 # Contact
 We provide the software **as is** in a Community Edition format. T-Pot is designed to run out of the box and with zero maintenance involved. <br>
-We hope you understand that we cannot provide support on an individual basis. We will try to address questions, bugs and problems on our [GitHub issue list](https://github.com/dtag-dev-sec/tpotce/issues).
+We hope you understand that we cannot provide support on an individual basis. We will try to address questions, bugs and problems on our [GitHub issue list](https://github.com/podictive/tpotce/issues).
 
 <a name="licenses"></a>
 # Licenses
@@ -453,6 +485,8 @@ The software that T-Pot is built on uses the following licenses.
 
 <a name="credits"></a>
 # Credits
+Thanks to https://github.com/dtag-dev-sec/tpotce/tree/debian for doing 99% of the work, I just added some scripts and change some config. Thx! 
+
 Without open source and the fruitful development community (we are proud to be a part of), T-Pot would not have been possible! Our thanks are extended but not limited to the following people and organizations:
 
 ### The developers and development communities of
