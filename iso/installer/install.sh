@@ -709,7 +709,7 @@ case $myCONF_TPOT_FLAVOR in
 esac
 
 # Create empty override file in case elasticsearch is to listen on multiple interfaces
-echo "version: '2.3'" > tpot.override.yml
+echo "version: '2.3'" > /opt/tpot/etc/tpot.override.yml
 
 # Let's load docker images in parallel
 function fuPULLIMAGES {
