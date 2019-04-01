@@ -14,8 +14,8 @@ myTPOTCOMPOSE="/opt/tpot/etc/tpot.yml"
 myLSB_STABLE_SUPPORTED="stretch"
 myLSB_TESTING_SUPPORTED="sid"
 myREMOTESITES="https://hub.docker.com https://github.com https://pypi.python.org https://debian.org"
-myPREINSTALLPACKAGES="apache2-utils curl dialog figlet grc libcrack2 libpq-dev lsb-release net-tools software-properties-common toilet"
-myINSTALLPACKAGES="apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 lm-sensors man mosh multitail net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant default-jre"
+myPREINSTALLPACKAGES="apache2-utils curl dialog figlet grc libcrack2 libpq-dev lsb-release netselect-apt net-tools software-properties-common toilet"
+myINSTALLPACKAGES="apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 man mosh multitail netselect-apt net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant  default-jre"
 myINFO="\
 ########################################
 ### T-Pot Installer for Debian (Sid) ###
@@ -263,11 +263,11 @@ function fuCHECKNET {
 # Install T-Pot dependencies
 function fuGET_DEPS {
   export DEBIAN_FRONTEND=noninteractive
-  # Point to Debian (Sid, unstable)
-  tee /etc/apt/sources.list <<EOF
-deb http://deb.debian.org/debian unstable main contrib non-free
-deb-src http://deb.debian.org/debian unstable main contrib non-free
-EOF
+  # Determine fastest mirror
+  echo
+  echo "### Determine fastest mirror for your location."
+  echo
+  netselect-apt -n -a amd64 unstable && cp sources.list /etc/apt/
   echo
   echo "### Getting update information."
   echo
@@ -480,13 +480,12 @@ fi
 if [ "$myTPOT_DEPLOYMENT_TYPE" == "iso" ] || [ "$myTPOT_DEPLOYMENT_TYPE" == "user" ];
   then
     myCONF_TPOT_FLAVOR=$(dialog --keep-window --no-cancel --backtitle "$myBACKTITLE" --title "[ Choose Your T-Pot NG Edition ]" --menu \
-    "\nRequired: 6GB RAM, 128GB SSD\nRecommended: 8GB RAM, 256GB SSD" 15 70 7 \
+    "\nRequired: 6GB RAM, 128GB SSD\nRecommended: 8GB RAM, 256GB SSD" 14 70 6 \
     "STANDARD" "Honeypots, ELK, NSM & Tools" \
     "SENSOR" "Just Honeypots, EWS Poster & NSM" \
     "INDUSTRIAL" "Conpot, RDPY, Vnclowpot, ELK, NSM & Tools" \
     "COLLECTOR" "Heralding, ELK, NSM & Tools" \
-    "NEXTGEN" "NextGen (Glutton instead of Honeytrap)" \
-    "LEGACY" "Standard Edition from previous release" 3>&1 1>&2 2>&3 3>&-)
+    "NEXTGEN" "NextGen (Glutton, HoneyPy)" 3>&1 1>&2 2>&3 3>&-)
 fi
 
 # Let's ask for a secure tsec password if installation type is iso
@@ -701,10 +700,6 @@ case $myCONF_TPOT_FLAVOR in
   NEXTGEN)
     fuBANNER "NEXTGEN"
     ln -s /opt/tpot/etc/compose/nextgen.yml $myTPOTCOMPOSE
-  ;;
-  LEGACY)
-    fuBANNER "LEGACY"
-    ln -s /opt/tpot/etc/compose/legacy.yml $myTPOTCOMPOSE
   ;;
 esac
 

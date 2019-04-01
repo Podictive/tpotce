@@ -22,12 +22,13 @@ and includes dockerized versions of the following honeypots
 * [adbhoney](https://github.com/huuck/ADBHoney),
 * [ciscoasa](https://github.com/Cymmetria/ciscoasa_honeypot),
 * [conpot](http://conpot.org/),
-* [cowrie](http://www.micheloosterhof.com/cowrie/),
+* [cowrie](https://github.com/cowrie/cowrie),
 * [dionaea](https://github.com/DinoTools/dionaea),
-* [elasticpot](https://github.com/schmalle/ElasticPot),
+* [elasticpot](https://github.com/schmalle/ElasticpotPY),
 * [glastopf](http://mushmush.org/),
 * [glutton](https://github.com/mushorg/glutton),
 * [heralding](https://github.com/johnnykv/heralding),
+* [honeypy](https://github.com/foospidy/HoneyPy),
 * [honeytrap](https://github.com/armedpot/honeytrap/),
 * [mailoney](https://github.com/awhitehatter/mailoney),
 * [medpot](https://github.com/schmalle/medpot),
@@ -73,6 +74,7 @@ Furthermore we use the following tools
   - [Tools](#tools)
   - [Maintenance](#maintenance)
   - [Community Data Submission](#submission)
+  - [Opt-In HPFEEDS Data Submission](#hpfeeds-optin)
 - [Roadmap](#roadmap)
 - [Disclaimer](#disclaimer)
 - [FAQ](#faq)
@@ -87,13 +89,42 @@ Furthermore we use the following tools
 # Release Notes
 - **Move from Ubuntu 18.04 to Debian (Sid)**
   - For almost 5 years Ubuntu LTS versions were our distributions of choice. Last year we made a design choice for T-Pot to be closer to a rolling release model and thus allowing us to issue smaller changes and releases in a more timely manner. The distribution of choice is Debian (Sid / unstable) which will provide us with the latest advancements in a Debian based distribution.
-- **Docker images will keep the 1811 tag**
-  - The docker images will keep the 1811 tag.
-- **Deprecated tools**
-  - *ctop* will no longer be part of T-Pot.
+- **Include HoneyPy honeypot**
+  - *HoneyPy* is now included in the NEXTGEN installation type
+- **Include Suricata 4.1.3**
+  - Building *Suricata 4.1.3* from scratch to enable JA3 and overall better protocol support.
+- **Update tools to the latest versions**
+  - ELK Stack 6.6.2
+  - CyberChef 8.27.0
+  - SpiderFoot v3.0
+  - Cockpit 188
+  - NGINX is now built to enforce TLS 1.3 on the T-Pot WebUI
+- **Update honeypots**
+  - Where possible / feasible the honeypots have been updated to their latest versions.
+  - *Cowrie* now supports *HASSH* generated hashes which allows for an easier identification of an attacker accross IP adresses.
+  - *Heralding* now supports *SOCKS5* emulation.
+- **Update Dashboards & Visualizations**
+  - *Offset Dashboard* added to easily spot changes in attacks on a single dashboard in 24h time window.
+  - *Cowrie Dashboard* modified to integrate *HASSH* support / visualizations.
+  - *HoneyPy Dashboard* added to support latest honeypot addition.
+  - *Suricata Dashboard* modified to integrate *JA3* support / visualizations.
+- **Debian mirror selection**
+  - During base install you now have to manually select a mirror.
+  - Upon T-Pot install the mirror closest to you will be determined automatically.
+  - This solves peering problems for most of the users speeding up installation and updates.
+- **Bugs**
+  - Fixed issue #298 where the import and export of objects on the shell did not work.
+  - Fixed issue #313 where Spiderfoot raised a KeyError, which was previously fixed in upstream.
+  - Fixed error in Suricata where path for reference.config changed.
+- **Release Cycle**
+  - As far as possible we will integrate changes now faster into the master branch, eliminating the need for monolithic releases. The update feature will be continuously improved on that behalf. However this might not account for all feature changes.
+- **HPFEEDS Opt-In**
+  - If you want to share your T-Pot data with a 3rd party HPFEEDS broker such as [SISSDEN](https://sissden.eu) you can do so by creating an account at the SISSDEN portal and run `hpfeeds_optin.sh` on T-Pot.
 - **Update Feature**
   - For the ones who like to live on the bleeding edge of T-Pot development there is now an update script available in `/opt/tpot/update.sh`.
   - This feature is beta and is mostly intended to provide you with the latest development advances without the need of reinstalling T-Pot.
+- **Deprecated tools**
+  - *ctop* will no longer be part of T-Pot.
 
 <a name="concept"></a>
 # Technical Concept
@@ -112,6 +143,7 @@ In T-Pot we combine the dockerized honeypots ...
 * [glastopf](http://mushmush.org/),
 * [glutton](https://github.com/mushorg/glutton),
 * [heralding](https://github.com/johnnykv/heralding),
+* [honeypy](https://github.com/foospidy/HoneyPy),
 * [honeytrap](https://github.com/armedpot/honeytrap/),
 * [mailoney](https://github.com/awhitehatter/mailoney),
 * [medpot](https://github.com/schmalle/medpot),
@@ -150,7 +182,7 @@ The individual docker configurations are located in the [docker folder](https://
 Depending on your installation type, whether you install on [real hardware](#hardware) or in a [virtual machine](#vm), make sure your designated T-Pot system meets the following requirements:
 
 ##### Standard Installation
-- Honeypots: adbhoney, ciscoasa, conpot, cowrie, dionaea, elasticpot, heralding, honeytrap, mailoney, rdpy, snare, tanner and vnclowpot
+- Honeypots: adbhoney, ciscoasa, conpot, cowrie, dionaea, elasticpot, heralding, honeytrap, mailoney, medpot, rdpy, snare & tanner
 - Tools: cockpit, cyberchef, ELK, elasticsearch head, ewsposter, NGINX, spiderfoot, p0f and suricata
 
 - 6-8 GB RAM (less RAM is possible but might introduce swapping)
@@ -159,7 +191,7 @@ Depending on your installation type, whether you install on [real hardware](#har
 - A working, non-proxied, internet connection
 
 ##### Sensor Installation
-- Honeypots: adbhoney, ciscoasa, conpot, cowrie, dionaea, elasticpot, heralding, honeytrap, mailoney, rdpy, snare, tanner and vnclowpot
+- Honeypots: adbhoney, ciscoasa, conpot, cowrie, dionaea, elasticpot, heralding, honeytrap, mailoney, medpot, rdpy, snare & tanner
 - Tools: cockpit
 
 - 6-8 GB RAM (less RAM is possible but might introduce swapping)
@@ -177,7 +209,7 @@ Depending on your installation type, whether you install on [real hardware](#har
 - A working, non-proxied, internet connection
 
 ##### Industrial Installation
-- Honeypots: conpot, rdpy, vnclowpot
+- Honeypots: conpot, cowrie, heralding, medpot, rdpy
 - Tools: cockpit, cyberchef, ELK, elasticsearch head, ewsposter, NGINX, spiderfoot, p0f and suricata
 
 - 6-8 GB RAM (less RAM is possible but might introduce swapping)
@@ -194,17 +226,8 @@ Depending on your installation type, whether you install on [real hardware](#har
 - Network via DHCP
 - A working, non-proxied, internet connection
 
-##### NextGen Installation (Glutton instead of Honeytrap)
-- Honeypots: adbhoney, ciscoasa, conpot, cowrie, dionaea, elasticpot, glutton, heralding, mailoney, rdpy, snare, tanner and vnclowpot
-- Tools: cockpit, cyberchef, ELK, elasticsearch head, ewsposter, NGINX, spiderfoot, p0f and suricata
-
-- 6-8 GB RAM (less RAM is possible but might introduce swapping)
-- 128 GB SSD (smaller is possible but limits the capacity of storing events)
-- Network via DHCP
-- A working, non-proxied, internet connection
-
-##### Legacy Installation (honeypots based on Standard Installation of T-Pot 17.10)
-- Honeypots: cowrie, dionaea, elasticpot, glastopf, honeytrap, mailoney, rdpy and vnclowpot
+##### NextGen Installation (Glutton replacing Honeytrap, HoneyPy replacing Elasticpot)
+- Honeypots: adbhoney, ciscoasa, conpot, cowrie, dionaea, glutton, heralding, honeypy, mailoney, rdpy, snare & tanner
 - Tools: cockpit, cyberchef, ELK, elasticsearch head, ewsposter, NGINX, spiderfoot, p0f and suricata
 
 - 6-8 GB RAM (less RAM is possible but might introduce swapping)
@@ -438,7 +461,7 @@ You may opt out of the submission by removing the `# Ewsposter service` from `/o
     restart: always
     networks:
      - ewsposter_local
-    image: "dtagdevsec/ewsposter:1810"
+    image: "dtagdevsec/ewsposter:1903"
     volumes:
      - /data:/data
      - /data/ews/conf/ews.ip:/opt/ewsposter/ews.ip
@@ -448,6 +471,11 @@ You may opt out of the submission by removing the `# Ewsposter service` from `/o
 Data is submitted in a structured ews-format, a XML stucture. Hence, you can parse out the information that is relevant to you.
 
 We encourage you not to disable the data submission as it is the main purpose of the community approach - as you all know **sharing is caring** 😍
+
+<a name="hpfeeds-optin"></a>
+## Opt-In HPFEEDS Data Submission
+As an Opt-In it is now possible to also share T-Pot data with 3rd party HPFEEDS brokers, such as [SISSDEN](https://sissden.eu).
+If you want to share your T-Pot data you simply have to regsiter an account with a 3rd party broker with its own benefits towards the community. Once registered you will receive your credentials to share events with the broker. In T-Pot you simply run `hpfeeds_optin.sh` which will ask for your credentials, in case of SISSDEN this is just `Ident` and `Secret`, everything else is pre-configured. It will automatically update `/opt/tpot/etc/tpot.yml` to deliver events to your desired broker.
 
 <a name="roadmap"></a>
 # Roadmap
@@ -477,7 +505,7 @@ We hope you understand that we cannot provide support on an individual basis. We
 <a name="licenses"></a>
 # Licenses
 The software that T-Pot is built on uses the following licenses.
-<br>GPLv2: [conpot)](https://github.com/mushorg/conpot/blob/master/LICENSE.txt), [dionaea](https://github.com/DinoTools/dionaea/blob/master/LICENSE), [honeytrap](https://github.com/armedpot/honeytrap/blob/master/LICENSE), [suricata](http://suricata-ids.org/about/open-source/)
+<br>GPLv2: [conpot](https://github.com/mushorg/conpot/blob/master/LICENSE.txt), [dionaea](https://github.com/DinoTools/dionaea/blob/master/LICENSE), [honeypy](https://github.com/foospidy/HoneyPy/blob/master/LICENSE), [honeytrap](https://github.com/armedpot/honeytrap/blob/master/LICENSE), [suricata](http://suricata-ids.org/about/open-source/)
 <br>GPLv3: [adbhoney](https://github.com/huuck/ADBHoney), [elasticpot](https://github.com/schmalle/ElasticPot), [ewsposter](https://github.com/dtag-dev-sec/ews/), [glastopf](https://github.com/glastopf/glastopf/blob/master/GPL), [rdpy](https://github.com/citronneur/rdpy/blob/master/LICENSE), [heralding](https://github.com/johnnykv/heralding/blob/master/LICENSE.txt), [snare](https://github.com/mushorg/snare/blob/master/LICENSE), [tanner](https://github.com/mushorg/snare/blob/master/LICENSE)
 <br>Apache 2 License: [cyberchef](https://github.com/gchq/CyberChef/blob/master/LICENSE), [elasticsearch](https://github.com/elasticsearch/elasticsearch/blob/master/LICENSE.txt), [logstash](https://github.com/elasticsearch/logstash/blob/master/LICENSE), [kibana](https://github.com/elasticsearch/kibana/blob/master/LICENSE.md), [docker](https://github.com/docker/docker/blob/master/LICENSE), [elasticsearch-head](https://github.com/mobz/elasticsearch-head/blob/master/LICENCE)
 <br>MIT license: [ciscoasa](https://github.com/Cymmetria/ciscoasa_honeypot/blob/master/LICENSE), [glutton](https://github.com/mushorg/glutton/blob/master/LICENSE)
@@ -496,15 +524,17 @@ Without open source and the fruitful development community (we are proud to be a
 * [cockpit](https://github.com/cockpit-project/cockpit/graphs/contributors)
 * [conpot](https://github.com/mushorg/conpot/graphs/contributors)
 * [cowrie](https://github.com/micheloosterhof/cowrie/graphs/contributors)
+* [debian](http://www.debian.org/)
 * [dionaea](https://github.com/DinoTools/dionaea/graphs/contributors)
 * [docker](https://github.com/docker/docker/graphs/contributors)
-* [elasticpot](https://github.com/schmalle/ElasticPot/graphs/contributors)
+* [elasticpot](https://github.com/schmalle/ElasticpotPY/graphs/contributors)
 * [elasticsearch](https://github.com/elastic/elasticsearch/graphs/contributors)
 * [elasticsearch-head](https://github.com/mobz/elasticsearch-head/graphs/contributors)
 * [ewsposter](https://github.com/armedpot/ewsposter/graphs/contributors)
 * [glastopf](https://github.com/mushorg/glastopf/graphs/contributors)
 * [glutton](https://github.com/mushorg/glutton/graphs/contributors)
 * [heralding](https://github.com/johnnykv/heralding/graphs/contributors)
+* [honeypy](https://github.com/foospidy/HoneyPy/graphs/contributors)
 * [honeytrap](https://github.com/armedpot/honeytrap/graphs/contributors)
 * [kibana](https://github.com/elastic/kibana/graphs/contributors)
 * [logstash](https://github.com/elastic/logstash/graphs/contributors)
@@ -516,7 +546,6 @@ Without open source and the fruitful development community (we are proud to be a
 * [snare](https://github.com/mushorg/snare/graphs/contributors)
 * [tanner](https://github.com/mushorg/tanner/graphs/contributors)
 * [suricata](https://github.com/inliniac/suricata/graphs/contributors)
-* [ubuntu](http://www.ubuntu.com/)
 
 ### The following companies and organizations
 * [debian](https://www.debian.org/)
@@ -539,4 +568,4 @@ One of the greatest feedback we have gotten so far is by one of the Conpot devel
 <a name="funfact"></a>
 # Fun Fact
 
-In an effort of saving the environment we are now brewing our own Mate Ice Tea and consumed 57 liters so far for the T-Pot 19.03 development 😇
+In an effort of saving the environment we are now brewing our own Mate Ice Tea and consumed 73 liters so far for the T-Pot 19.03 development 😇

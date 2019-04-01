@@ -58,7 +58,7 @@ function fuSELFUPDATE () {
       echo "###### $myBLUE""No updates found in repository.""$myWHITE"
       return
   fi
-  myRESULT=$(git diff --name-only origin/debian | grep update.sh)
+  myRESULT=$(git diff --name-only origin/master | grep update.sh)
   if [ "$myRESULT" == "update.sh" ];
     then
       echo "###### $myBLUE""Found newer version, will be pulling updates and restart myself.""$myWHITE"
@@ -169,7 +169,7 @@ echo
 
 function fuUPDATER () {
 export DEBIAN_FRONTEND=noninteractive
-local myPACKAGES="apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 lm-sensors man mosh multitail net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant"
+local myPACKAGES="apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 man mosh multitail netselect-apt net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant"
 echo "### Now upgrading packages ..."
 dpkg --configure -a
 apt-get -y autoclean
@@ -238,7 +238,14 @@ fuPULLIMAGES 2>&1>/dev/null
 #fuREMOVEOLDIMAGES "1804"
 echo "### If you made changes to tpot.yml please ensure to add them again."
 echo "### We stored the previous version as backup in /root/."
-echo "### Done, please reboot."
+echo "### Some updates may need an import of the latest Kibana objects as well."
+echo "### Download the latest objects here if they recently changed:"
+echo "### https://raw.githubusercontent.com/dtag-dev-sec/tpotce/master/etc/objects/kibana_export.json.zip"
+echo "### Export and import the objects easily through the Kibana WebUI:"
+echo "### Go to Kibana > Management > Saved Objects > Export / Import"
+echo "### All objects will be overwritten upon import, make sure to run an export first."
+echo
+echo "### Please reboot."
 echo
 }
 

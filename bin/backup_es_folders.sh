@@ -1,4 +1,12 @@
 #!/bin/bash
+# Run as root only.
+myWHOAMI=$(whoami)
+if [ "$myWHOAMI" != "root" ]
+  then
+    echo "Need to run as root ..."
+    exit
+fi
+
 # Backup all ES relevant folders
 # Make sure ES is available
 myES="http://127.0.0.1:64298/"
