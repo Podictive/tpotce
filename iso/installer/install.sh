@@ -14,8 +14,10 @@ myTPOTCOMPOSE="/opt/tpot/etc/tpot.yml"
 myLSB_STABLE_SUPPORTED="stretch"
 myLSB_TESTING_SUPPORTED="sid"
 myREMOTESITES="https://hub.docker.com https://github.com https://pypi.python.org https://debian.org"
-myPREINSTALLPACKAGES="apache2-utils curl dialog figlet grc libcrack2 libpq-dev lsb-release netselect-apt net-tools software-properties-common toilet"
-myINSTALLPACKAGES="apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 man mosh multitail netselect-apt net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant  default-jre"
+==== BASE ====
+myPREINSTALLPACKAGES="aria2 apache2-utils curl dialog figlet grc libcrack2 libpq-dev lsb-release netselect-apt net-tools software-properties-common toilet"
+myINSTALLPACKAGES="aria2 apache2-utils apparmor apt-transport-https aufs-tools bash-completion build-essential ca-certificates cgroupfs-mount cockpit cockpit-docker console-setup console-setup-linux curl debconf-utils dialog dnsutils docker.io docker-compose dstat ethtool fail2ban figlet genisoimage git glances grc haveged html2text htop iptables iw jq kbd libcrack2 libltdl7 man mosh multitail netselect-apt net-tools npm ntp openssh-server openssl pass prips software-properties-common syslinux psmisc pv python-pip toilet unattended-upgrades unzip vim wget wireless-tools wpasupplicant default-jre"
+==== BASE ====
 myINFO="\
 ########################################
 ### T-Pot Installer for Debian (Sid) ###
@@ -152,6 +154,9 @@ myCOCKPIT_SOCKET="[Socket]
 ListenStream=
 ListenStream=64294
 "
+mySSHPORT="
+Port 64295
+"
 myCRONJOBS="
 # Check if updated images are available and download them
 27 1 * * *      root    docker-compose -f /opt/tpot/etc/tpot.yml -f /opt/tpot/etc/tpot.override.yml pull
@@ -166,7 +171,7 @@ myCRONJOBS="
 27 3 * * *      root    systemctl stop tpot && docker stop \$(docker ps -aq) || docker rm \$(docker ps -aq) || reboot
 
 # Check for updated packages every sunday, upgrade and reboot
-27 16 * * 0     root    apt-get autoclean -y && apt-get autoremove -y && apt-get update -y && apt-get upgrade -y && sleep 10 && reboot
+27 16 * * 0     root    apt-fast autoclean -y && apt-fast autoremove -y && apt-fast update -y && apt-fast upgrade -y && sleep 10 && reboot
 "
 myROOTPROMPT='PS1="\[\033[38;5;8m\][\[$(tput sgr0)\]\[\033[38;5;1m\]\u\[$(tput sgr0)\]\[\033[38;5;6m\]@\[$(tput sgr0)\]\[\033[38;5;4m\]\h\[$(tput sgr0)\]\[\033[38;5;6m\]:\[$(tput sgr0)\]\[\033[38;5;5m\]\w\[$(tput sgr0)\]\[\033[38;5;8m\]]\[$(tput sgr0)\]\[\033[38;5;1m\]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"'
 myUSERPROMPT='PS1="\[\033[38;5;8m\][\[$(tput sgr0)\]\[\033[38;5;2m\]\u\[$(tput sgr0)\]\[\033[38;5;6m\]@\[$(tput sgr0)\]\[\033[38;5;4m\]\h\[$(tput sgr0)\]\[\033[38;5;6m\]:\[$(tput sgr0)\]\[\033[38;5;5m\]\w\[$(tput sgr0)\]\[\033[38;5;8m\]]\[$(tput sgr0)\]\[\033[38;5;2m\]\\$\[$(tput sgr0)\]\[\033[38;5;15m\] \[$(tput sgr0)\]"'
@@ -213,6 +218,17 @@ fi
 # If not present install them
 function fuCHECKPACKAGES {
   export DEBIAN_FRONTEND=noninteractive
+  # Make sure dependencies for apt-fast are installed
+  myCURL=$(which curl)
+  myWGET=$(which wget)
+  if [ "$myCURL" == "" ] || [ "$myWGET" == "" ]
+    then
+      echo "### Installing deps for apt-fast"
+      apt-get -y update
+      apt-get -y install curl wget
+  fi
+  echo "### Installing apt-fast"
+  /bin/bash -c "$(curl -sL https://raw.githubusercontent.com/ilikenwf/apt-fast/master/quick-install.sh)"
   echo -n "### Checking for installer dependencies: "
   local myPACKAGES="$1"
   for myDEPS in $myPACKAGES;
@@ -221,8 +237,8 @@ function fuCHECKPACKAGES {
       if [ "$myOK" != "ok" ];
         then
           echo "[ NOW INSTALLING ]"
-          apt-get update -y
-          apt-get install -y $myPACKAGES
+          apt-fast update -y
+          apt-fast install -y $myPACKAGES
           break
       fi
   done
@@ -268,24 +284,34 @@ function fuGET_DEPS {
   echo "### Determine fastest mirror for your location."
   echo
   netselect-apt -n -a amd64 unstable && cp sources.list /etc/apt/
+  mySOURCESCHECK=$(cat /etc/apt/sources.list | grep -c unstable)
+  if [ "$mySOURCESCHECK" == "0" ]
+    then
+      echo "### Automatic mirror selection failed, using main mirror."
+      # Point to Debian (Sid, unstable)
+      tee /etc/apt/sources.list <<EOF
+      deb http://deb.debian.org/debian unstable main contrib non-free
+      deb-src http://deb.debian.org/debian unstable main contrib non-free
+EOF
+  fi
   echo
   echo "### Getting update information."
   echo
-  apt-get -y update
+  apt-fast -y update
   echo
   echo "### Upgrading packages."
   echo
   # Downlaod and upgrade packages, but silently keep existing configs
   echo "docker.io docker.io/restart       boolean true" | debconf-set-selections -v
   echo "debconf debconf/frontend select noninteractive" | debconf-set-selections -v
-  apt-get -y dist-upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
+  apt-fast -y dist-upgrade -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" --force-yes
   echo
   echo "### Installing T-Pot dependencies."
   echo
-  apt-get -y install $myINSTALLPACKAGES
+  apt-fast -y install $myINSTALLPACKAGES
   # Remove exim4
-  apt-get -y purge exim4-base mailutils
-  apt-get -y autoremove
+  apt-fast -y purge exim4-base mailutils
+  apt-fast -y autoremove
   apt-mark hold exim4-base mailutils
 }
 
@@ -674,7 +700,7 @@ fuBANNER "Adjust ports"
 mkdir -p /etc/systemd/system/cockpit.socket.d
 echo "$myCOCKPIT_SOCKET" | tee /etc/systemd/system/cockpit.socket.d/listen.conf
 sed -i '/^port/Id' /etc/ssh/sshd_config
-echo "Port 64295" >> /etc/ssh/sshd_config
+echo "$mySSHPORT" | tee -a /etc/ssh/sshd_config
 
 # Do not allow root login for cockpit
 sed -i '2i\auth requisite pam_succeed_if.so uid >= 1000' /etc/pam.d/cockpit
@@ -859,7 +885,8 @@ fi
 fuBANNER "Permissions"
 chmod 760 -R /data
 chown tpot:tpot -R /data
-
+==== BASE ====
+==== BASE ====
 chmod 644 -R /data/nginx/conf
 chmod 644 -R /data/nginx/cert
 
@@ -908,8 +935,8 @@ done
 
 # Let's clean up apt
 fuBANNER "Clean up"
-apt-get autoclean -y
-apt-get autoremove -y
+apt-fast autoclean -y
+apt-fast autoremove -y
 
 # Final steps
 cp /opt/tpot/host/etc/rc.local /etc/rc.local && \

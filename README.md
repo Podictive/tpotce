@@ -110,7 +110,7 @@ Furthermore we use the following tools
   - *Suricata Dashboard* modified to integrate *JA3* support / visualizations.
 - **Debian mirror selection**
   - During base install you now have to manually select a mirror.
-  - Upon T-Pot install the mirror closest to you will be determined automatically.
+  - Upon T-Pot install the mirror closest to you will be determined automatically, `netselect-apt` requires you to allow ICMP outbound.
   - This solves peering problems for most of the users speeding up installation and updates.
 - **Bugs**
   - Fixed issue #298 where the import and export of objects on the shell did not work.
@@ -125,6 +125,11 @@ Furthermore we use the following tools
   - This feature is beta and is mostly intended to provide you with the latest development advances without the need of reinstalling T-Pot.
 - **Deprecated tools**
   - *ctop* will no longer be part of T-Pot.
+- **Fix #332**
+  - If T-Pot, opposed to the requirements, does not have full internet access netselect-apt fails to determine the fastest mirror as it needs ICMP and UDP outgoing. Should netselect-apt fail the default mirrors will be used.
+- **Improve install speed with apt-fast**
+  - Migrating from a stable base install to Debian (Sid) requires downloading lots of packages. Depending on your geo location the download speed was already improved by introducing netselect-apt to determine the fastest mirror. Wit
+h apt-fast the downloads will be even faster by downloading packages not only in parallel but also with multiple connections per package.
 
 <a name="concept"></a>
 # Technical Concept
@@ -475,7 +480,7 @@ We encourage you not to disable the data submission as it is the main purpose of
 <a name="hpfeeds-optin"></a>
 ## Opt-In HPFEEDS Data Submission
 As an Opt-In it is now possible to also share T-Pot data with 3rd party HPFEEDS brokers, such as [SISSDEN](https://sissden.eu).
-If you want to share your T-Pot data you simply have to regsiter an account with a 3rd party broker with its own benefits towards the community. Once registered you will receive your credentials to share events with the broker. In T-Pot you simply run `hpfeeds_optin.sh` which will ask for your credentials, in case of SISSDEN this is just `Ident` and `Secret`, everything else is pre-configured. It will automatically update `/opt/tpot/etc/tpot.yml` to deliver events to your desired broker.
+If you want to share your T-Pot data you simply have to register an account with a 3rd party broker with its own benefits towards the community. Once registered you will receive your credentials to share events with the broker. In T-Pot you simply run `hpfeeds_optin.sh` which will ask for your credentials, in case of SISSDEN this is just `Ident` and `Secret`, everything else is pre-configured. It will automatically update `/opt/tpot/etc/tpot.yml` to deliver events to your desired broker.
 
 <a name="roadmap"></a>
 # Roadmap
@@ -520,6 +525,7 @@ Without open source and the fruitful development community (we are proud to be a
 ### The developers and development communities of
 
 * [adbhoney](https://github.com/huuck/ADBHoney/graphs/contributors)
+* [apt-fast](https://github.com/ilikenwf/apt-fast/graphs/contributors)
 * [ciscoasa](https://github.com/Cymmetria/ciscoasa_honeypot/graphs/contributors)
 * [cockpit](https://github.com/cockpit-project/cockpit/graphs/contributors)
 * [conpot](https://github.com/mushorg/conpot/graphs/contributors)
